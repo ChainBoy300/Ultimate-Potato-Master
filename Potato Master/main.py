@@ -7,6 +7,12 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 from pathlib import Path
+from cryptography.fernet import Fernet
+
+
+# IMPORTANT VARIABLES
+# IF SELF HOSTING, SET THIS TO YOUR DISCORD ID (ex: owner_id: int = 123456789123456789)
+owner_id: int = int(os.getenv('MY_DISCORD_ID'))
 
 
 # Main function
@@ -36,8 +42,14 @@ def main() -> None:
         configure_files(join_guild)
 
     # Configure files for a specified guild or current
-    @bot.command(name='config_files', description='Configure files for current guild or guild of given id.')
-    async def config_files(ctx: commands.Context, guild_id: typing.Optional[int] = None) -> None:
+    @bot.command(name='config_files', description='Configure files for current server or server of given ID')
+    @commands.guild_only()
+    async def config_files(ctx: commands.Context, guild_id: typing.Optional[int] = None) -> discord.Message or None:
+        # Only one person can use this command as well, this is returned if someone else tries to use it
+        if ctx.author.id != owner_id:
+            return await ctx.send('You are not allowed to do this!', ephemeral=True)
+
+        # If a guild ID is given, configure files for that guild
         if guild_id:
             guild: discord.Guild = bot.get_guild(guild_id)
             if guild:
@@ -52,18 +64,27 @@ def main() -> None:
     # SYNC command, to sync all the slash commands (IMPORTANT!)
     @bot.hybrid_command(name='sync', description='Sync globally or to the current server.')
     @commands.guild_only()
-    async def sync_commands(ctx: commands.Context, option: typing.Literal['global', 'current']):
-        discord_id: int = int(os.getenv('MY_DISCORD_ID'))  # IF SELF HOSTING, SET discord_id TO YOUR DISCORD ID
+    async def sync_commands(ctx: commands.Context, guild_id: typing.Optional[int] = None) -> discord.Message or None:
+        """
+        Command to sync app_commands.
 
+        :param ctx:
+        :param guild_id: Discord server ID.
+        :return: An error or nothing.
+        """
         # Only one person can use the sync command, this is returned if someone else tries to use it
-        if ctx.author.id != discord_id:
+        if ctx.author.id != owner_id:
             return await ctx.send('You are not allowed to do this!', ephemeral=True)
 
-        # If chosen parameter is current, syncs all commands only to current guild (Does not work, never did?)
-        if option == 'current':
-            synced = await bot.tree.sync(guild=discord.Object(id=ctx.guild.id))
-            await ctx.send(f"Synced {len(synced)} commands to the current guild.", ephemeral=True)
-        # If the chosen parameter happens to be global, sync all commands to all guilds
+        # If a guild ID is given, sync commands to that guild
+        if guild_id:
+            guild: discord.Guild = bot.get_guild(guild_id)
+            if guild:
+                synced = await bot.tree.sync(guild=guild)
+                await ctx.send(f"Synced {len(synced)} commands to the given guild.", ephemeral=True)
+            else:
+                await ctx.send("I could not sync commands to that server!")
+        # If no guild ID is given, sync commands globally
         else:
             synced = await bot.tree.sync()
             await ctx.send(f"Synced {len(synced)} commands globally.", ephemeral=True)
@@ -72,11 +93,17 @@ def main() -> None:
     @bot.hybrid_command(name='module', description='Reload, unload or load modules.')
     @commands.guild_only()
     async def modify_modules(ctx: commands.Context, option: typing.Literal["reload", "unload", "load"],
-                             value: str = None):
-        discord_id: int = int(os.getenv('MY_DISCORD_ID'))  # IF SELF HOSTING, SET discord_id TO YOUR DISCORD ID
+                             value: str = None) -> discord.Message or None:
+        """
+        Command to manipulate bot modules.
 
+        :param ctx:
+        :param option: Action to be executed by the command.
+        :param value: Module to be manipulated.
+        :return: An error or nothing.
+        """
         # Only one person can use this command as well, this is returned if someone else tries to use it
-        if ctx.author.id != discord_id:
+        if ctx.author.id != owner_id:
             return await ctx.send('You are not allowed to do this!', ephemeral=True)
 
         # What the command will do for every option
@@ -151,12 +178,23 @@ def main() -> None:
 
 # Initial bot configuration
 def configure() -> None:
+    """
+    Any extra configurations of the bot upon booting up.
+
+    :return:
+    """
     load_dotenv()  # Loads all environment variables from the .env file
     # Make the initial path for data storage IF it does not exist
     Path("../data").mkdir(parents=True, exist_ok=True)
 
 
 def configure_files(guild: discord.Guild) -> None:
+    """
+    Configures the initial folders/files of a guild.
+
+    :param guild: The guild object, aka guild being affected.
+    :return:
+    """
     path: str = f"../data/{guild.id}"  # Guild storage path
 
     # Folder to store all data for a guild
@@ -166,7 +204,7 @@ def configure_files(guild: discord.Guild) -> None:
     # Folder to store players
     Path(f"{path}/players").mkdir(parents=True, exist_ok=True)
 
-    # Initial configuration
+    # Initial server configuration
     config_dict: dict = {
         "guild": guild.name,
         "running": False,
@@ -189,6 +227,27 @@ def configure_files(guild: discord.Guild) -> None:
         Path(f"{path}/messages/lucky.json").open(mode="x").close()
 
 
+# ENCRYPTION
+def generate_key() -> None:
+    """
+    Generates a Fernet key and stores it as a file. THIS FILE IS IMPORTANT, KEEP IT SAFE!
+
+    :return:
+    """
+    key = Fernet.generate_key()
+    with Path('../data/encryption.key').open('wb') as key_file:
+        key_file.write(key)
+
+
+def load_key() -> bytes:
+    """
+    Reads the encryption key file and returns it as bytes, which are usable by Fernet.
+
+    :return:
+    """
+    return Path('../data/encryption.key').open('rb').read()
+
+
 # Sets up the bot object
 class Bot(commands.Bot):
     def __init__(self):
@@ -198,5 +257,6 @@ class Bot(commands.Bot):
 
 # Runs everything
 if __name__ == '__main__':
+    # generate_key()  # UNCOMMENT THIS UPON FIRST BOOT UP, THEN COMMENT AGAIN!
     configure()  # Initial configuration
     main()  # The MEAT of the bot :)
