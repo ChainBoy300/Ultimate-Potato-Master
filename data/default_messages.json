@@ -1,11 +1,24 @@
 {
   "alive": [
-
+    "**Managed to live!**",
+    "**Had a nice day!**",
+    "**Ran into a bunny, then ran for their life!**",
+    "**Thought it was a good idea to try and eat the bot. They succeeded!**",
+    "**Tried to run away from the cops, and then got high.**"
   ],
   "dead": [
-
+    "*Tripped and snapped their neck.*",
+    "*Died due to pun overdose.*",
+    "*Death by Snu Snu.*",
+    "*Got hit by a train, and then was finished off by a moose!*",
+    "*Had a lack of faith in J.C.*",
+    "*Thought it was a good idea to try and eat the bot. They failed.*",
+    "*Couldn't take it anymore.*",
+    "*Found some food, then found some food poisoning.*",
+    "*I've fallen, and I can't get up!*"
   ],
   "lucky": [
-
+    "***Tripped, but fell on a pillow and survived!***",
+    "***Survived a heart attack!***"
   ]
 }

@@ -1,8 +1,12 @@
 import json
-
 import discord
 from discord import app_commands
 from discord.ext import commands
+from cryptography.fernet import Fernet
+from main import load_key
+
+# Load encryption key for later use
+f = Fernet(load_key())
 
 
 # Hunger Games Module?
