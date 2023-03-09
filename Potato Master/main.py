@@ -21,7 +21,7 @@ def main() -> None:
     bot = Bot()
 
     # Modules to be loaded by default
-    modules: list[str] = ['hg', 'dev']
+    modules: list[str] = ['hg']
 
     # When the bot is ready to go
     @bot.event
@@ -45,6 +45,13 @@ def main() -> None:
     @bot.command(name='config_files', description='Configure files for current server or server of given ID')
     @commands.guild_only()
     async def config_files(ctx: commands.Context, guild_id: typing.Optional[int] = None) -> discord.Message or None:
+        """
+        Command to configure the initial folders/files of a guild.
+
+        :param ctx:
+        :param guild_id: Guild ID.
+        :return: An error or nothing.
+        """
         # Only one person can use this command as well, this is returned if someone else tries to use it
         if ctx.author.id != owner_id:
             return await ctx.send('You are not allowed to do this!', ephemeral=True)
@@ -69,7 +76,7 @@ def main() -> None:
         Command to sync app_commands.
 
         :param ctx:
-        :param guild_id: Discord server ID.
+        :param guild_id: Guild ID.
         :return: An error or nothing.
         """
         # Only one person can use the sync command, this is returned if someone else tries to use it
@@ -179,7 +186,7 @@ def main() -> None:
 # Initial bot configuration
 def configure() -> None:
     """
-    Any extra configurations of the bot upon booting up.
+    Configuration upon bot boot up.
 
     :return:
     """
