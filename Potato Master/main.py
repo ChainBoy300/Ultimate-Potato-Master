@@ -10,13 +10,11 @@ from pathlib import Path
 from cryptography.fernet import Fernet
 
 
-# IMPORTANT VARIABLES
-# IF SELF HOSTING, SET THIS TO YOUR DISCORD ID (ex: owner_id: int = 123456789123456789)
-owner_id: int = int(os.getenv('MY_DISCORD_ID'))
-
-
 # Main function
 def main() -> None:
+    # IF SELF HOSTING, SET THIS TO YOUR DISCORD ID (ex: owner_id: int = 123456789123456789)
+    owner_id: int = int(os.getenv('MY_DISCORD_ID'))
+
     # Initializes an instance of the bot
     bot = Bot()
 
@@ -61,9 +59,9 @@ def main() -> None:
             guild: discord.Guild = bot.get_guild(guild_id)
             if guild:
                 configure_files(guild)
-                await ctx.send("Files for specified server have been created.")
+                await ctx.send('Files for specified server have been created.')
             else:
-                await ctx.send("I do not have access to that server or it doesn't exist!")
+                await ctx.send('I do not have access to that server or it does not exist!')
         else:
             configure_files(ctx.guild)
             await ctx.send("Files for current server have been created.")
@@ -88,13 +86,13 @@ def main() -> None:
             guild: discord.Guild = bot.get_guild(guild_id)
             if guild:
                 synced = await bot.tree.sync(guild=guild)
-                await ctx.send(f"Synced {len(synced)} commands to the given guild.", ephemeral=True)
+                await ctx.send(f'Synced {len(synced)} commands to the given guild.', ephemeral=True)
             else:
-                await ctx.send("I could not sync commands to that server!")
+                await ctx.send('I could not sync commands to that server!')
         # If no guild ID is given, sync commands globally
         else:
             synced = await bot.tree.sync()
-            await ctx.send(f"Synced {len(synced)} commands globally.", ephemeral=True)
+            await ctx.send(f'Synced {len(synced)} commands globally.', ephemeral=True)
 
     # COMMAND RELATING TO MODULES HERE
     @bot.hybrid_command(name='module', description='Reload, unload or load modules.')
@@ -118,65 +116,65 @@ def main() -> None:
             try:
                 await bot.load_extension(value)
             except commands.ExtensionFailed:
-                await ctx.send(f"{value.capitalize()} failed to load!", ephemeral=True)
+                await ctx.send(f'{value.capitalize()} failed to load!', ephemeral=True)
                 raise commands.ExtensionFailed
             except commands.ExtensionNotFound:
-                await ctx.send("No such extension.", ephemeral=True)
+                await ctx.send('No such extension.', ephemeral=True)
                 raise commands.ExtensionNotFound
             except commands.ExtensionAlreadyLoaded:
-                await ctx.send(f"{value.capitalize()} was already loaded.", ephemeral=True)
+                await ctx.send(f'{value.capitalize()} was already loaded.', ephemeral=True)
                 raise commands.ExtensionAlreadyLoaded
             except commands.NoEntryPointError:
-                await ctx.send("Module not set up correctly.", ephemeral=True)
+                await ctx.send('Module not set up correctly.', ephemeral=True)
                 raise commands.NoEntryPointError
             else:
                 modules.append(value)
-                await ctx.send(f"{value.capitalize()} loaded.", ephemeral=True)
+                await ctx.send(f'{value.capitalize()} loaded.', ephemeral=True)
         elif option == 'unload':  # Option chosen is 'unload'
             try:
                 await bot.unload_extension(value)
             except commands.ExtensionNotFound:
-                await ctx.send("No such extension.", ephemeral=True)
+                await ctx.send('No such extension.', ephemeral=True)
                 raise commands.ExtensionNotFound
             except commands.ExtensionNotLoaded:
-                await ctx.send(f"{value.capitalize()} was not loaded or does not exist.", ephemeral=True)
+                await ctx.send(f'{value.capitalize()} was not loaded or does not exist.', ephemeral=True)
                 raise commands.ExtensionNotLoaded
             else:
                 modules.remove(value)
-                await ctx.send(f"{value.capitalize()} unloaded.", ephemeral=True)
+                await ctx.send(f'{value.capitalize()} unloaded.', ephemeral=True)
         else:  # Option chosen is 'reload'
             if value is None or value == '':  # No specific module is given, so reload all of them
                 for module in modules:
                     try:
                         await bot.reload_extension(module)
                     except commands.ExtensionFailed:
-                        await ctx.send(f"{module.capitalize()} failed to reload!", ephemeral=True)
+                        await ctx.send(f'{module.capitalize()} failed to reload!', ephemeral=True)
                         raise commands.ExtensionFailed
                     except commands.ExtensionNotFound:
-                        await ctx.send(f"{module.capitalize()} not found!", ephemeral=True)
+                        await ctx.send(f'{module.capitalize()} not found!', ephemeral=True)
                         raise commands.ExtensionNotFound
                     except commands.NoEntryPointError:
-                        await ctx.send("Module not set up correctly.", ephemeral=True)
+                        await ctx.send('Module not set up correctly.', ephemeral=True)
                         raise commands.NoEntryPointError
                     else:
-                        await ctx.send(f"{module.capitalize()} reloaded.", ephemeral=True)
+                        await ctx.send(f'{module.capitalize()} reloaded.', ephemeral=True)
             else:  # A specific module is being reloaded
                 try:
                     await bot.reload_extension(value)
                 except commands.ExtensionFailed:
-                    await ctx.send(f"{value.capitalize()} failed to reload!", ephemeral=True)
+                    await ctx.send(f'{value.capitalize()} failed to reload!', ephemeral=True)
                     raise commands.ExtensionFailed
                 except commands.ExtensionNotLoaded:
-                    await ctx.send(f"{value.capitalize()} was not loaded!", ephemeral=True)
+                    await ctx.send(f'{value.capitalize()} was not loaded!', ephemeral=True)
                     raise commands.ExtensionNotLoaded
                 except commands.ExtensionNotFound:
-                    await ctx.send(f"{value.capitalize()} not found!", ephemeral=True)
+                    await ctx.send(f'{value.capitalize()} not found!', ephemeral=True)
                     raise commands.ExtensionNotFound
                 except commands.NoEntryPointError:
-                    await ctx.send("Module not set up correctly.", ephemeral=True)
+                    await ctx.send('Module not set up correctly.', ephemeral=True)
                     raise commands.NoEntryPointError
                 else:
-                    await ctx.send(f"{value.capitalize()} reloaded.", ephemeral=True)
+                    await ctx.send(f'{value.capitalize()} reloaded.', ephemeral=True)
 
     # Bot logging and bot token
     handler = logging.FileHandler(filename='../discord.log', encoding='utf-8', mode='w')
@@ -192,7 +190,7 @@ def configure() -> None:
     """
     load_dotenv()  # Loads all environment variables from the .env file
     # Make the initial path for data storage IF it does not exist
-    Path("../data").mkdir(parents=True, exist_ok=True)
+    Path('../data').mkdir(parents=True, exist_ok=True)
 
 
 def configure_files(guild: discord.Guild) -> None:
@@ -202,14 +200,16 @@ def configure_files(guild: discord.Guild) -> None:
     :param guild: The guild object, aka guild being affected.
     :return:
     """
-    path: str = f"../data/{guild.id}"  # Guild storage path
+    path: str = f'../data/guilds/{guild.id}'  # Guild storage path
 
     # Folder to store all data for a guild
     Path(path).mkdir(parents=True, exist_ok=True)
     # Folder to store custom messages
-    Path(f"{path}/messages").mkdir(parents=True, exist_ok=True)
+    Path(f'{path}/messages').mkdir(parents=True, exist_ok=True)
     # Folder to store players
-    Path(f"{path}/players").mkdir(parents=True, exist_ok=True)
+    Path(f'{path}/players').mkdir(parents=True, exist_ok=True)
+    # Folder to store bots
+    Path(f'{path}/bots').mkdir(parents=True, exist_ok=True)
 
     # Initial server configuration
     config_dict: dict = {
@@ -218,20 +218,20 @@ def configure_files(guild: discord.Guild) -> None:
         "stopping": False,
         "only_custom_messages": False
     }
-    with Path(f"{path}/config.json").open(mode="w") as conf:
+    with Path(f'{path}/config.json').open(mode='w') as conf:
         json.dump(config_dict, conf)
 
     # Makes the json for alive custom messages if it does not exist
-    if not Path(f"{path}/messages/alive.json").exists():
-        Path(f"{path}/messages/alive.json").open(mode="x").close()
+    if not Path(f'{path}/messages/alive.json').exists():
+        Path(f'{path}/messages/alive.json').open(mode='x').close()
 
     # Makes the json for dead custom messages if it does not exist
-    if not Path(f"{path}/messages/dead.json").exists():
-        Path(f"{path}/messages/dead.json").open(mode="x").close()
+    if not Path(f'{path}/messages/dead.json').exists():
+        Path(f'{path}/messages/dead.json').open(mode='x').close()
 
     # Makes the json for lucky custom messages if it does not exist
-    if not Path(f"{path}/messages/lucky.json").exists():
-        Path(f"{path}/messages/lucky.json").open(mode="x").close()
+    if not Path(f'{path}/messages/lucky.json').exists():
+        Path(f'{path}/messages/lucky.json').open(mode='x').close()
 
 
 # ENCRYPTION
@@ -242,7 +242,7 @@ def generate_key() -> None:
     :return:
     """
     key = Fernet.generate_key()
-    with Path('../data/encryption.key').open('wb') as key_file:
+    with Path('../encryption.key').open('wb') as key_file:
         key_file.write(key)
 
 
@@ -252,7 +252,7 @@ def load_key() -> bytes:
 
     :return:
     """
-    return Path('../data/encryption.key').open('rb').read()
+    return Path('../encryption.key').open('rb').read()
 
 
 # Sets up the bot object
@@ -264,6 +264,6 @@ class Bot(commands.Bot):
 
 # Runs everything
 if __name__ == '__main__':
-    # generate_key()  # UNCOMMENT THIS UPON FIRST BOOT UP, THEN COMMENT AGAIN!
+    #generate_key()  # UNCOMMENT THIS UPON FIRST BOOT UP, THEN COMMENT AGAIN!
     configure()  # Initial configuration
     main()  # The MEAT of the bot :)
